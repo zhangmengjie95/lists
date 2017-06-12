@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+	<title>微博</title>
+	<style>
+		 *{padding: 0;margin: 0;list-style: none;}
+		
+	</style>
+</head>
+<body ng-app="app" ng-controller="controller">
+     <ui-view>
+     	
+	    <ul ng-repeat="val in data">
+		  <li ng-click="rander($index)" ui-sref="info">{{val.title}}</li>
+	   </ul>
+	</ui-view>
+</body>
+<script type="text/javascript" src="js/angular.min.js"></script>
+<script type="text/javascript" src="js/angular-ui-router.min.js">
+	
+</script>
+ <script type="text/javascript">
+ 
+ 	var app=angular.module("app",["ui.router"]);
+ 	
+ 
+ 	app.controller("controller",function($scope,$http){
+ 		
+ 		 $http({
+ 		 	  url:"/load",
+ 		 	  method:"GET"
+ 		 }).success(function(result){
+ 		 	
+ 		 	$scope.data=result.data;
+ 		 	console.log($scope.data)
+ 		 	
+ 		 });
+ 		 $scope.rander=function(ind){
+ 		 	
+ 		 	$scope.content=$scope.data[ind].content;
+ 		 	
+ 		 }
+ 		
+ 		
+ 	})
+ 	app.config(function($stateProvider){
+ 		    $stateProvider
+ 		    .state("info",{
+ 		    	url:"/info",
+ 		    	templateUrl:"views/info.html"
+ 		    })
+ 	})
+ </script>
+</html>

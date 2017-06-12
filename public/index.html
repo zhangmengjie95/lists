@@ -1,57 +1,141 @@
 <!DOCTYPE html>
 <html lang="zh">
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
-	<title>微博</title>
-	<style>
-		 *{padding: 0;margin: 0;list-style: none;}
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>微博</title>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+				list-style: none;
+			}
+			
+			h3 {
+				width: 100%;
+				height: 30px;
+				line-height: 30px;
+				text-align: center;
+				color: #fff;
+				background: skyblue;
+				font-weight: normal;
+			}
+			
+			ul li {
+				line-height: 30px;
+				width: 200px;
+			}
+			
+			input[type="text"],
+			textarea {
+				width: 200px;
+				margin-bottom: 10px;
+			}
+		</style>
+	</head>
+
+	<body ng-app="app" ng-controller="controller">
+
+		<ui-view>
+
+		</ui-view> 
 		
-	</style>
-</head>
-<body ng-app="app" ng-controller="controller">
-     <ui-view>
-     	
-	    <ul ng-repeat="val in data">
-		  <li ng-click="rander($index)" ui-sref="info">{{val.title}}</li>
-	   </ul>
-	</ui-view>
-</body>
-<script type="text/javascript" src="js/angular.min.js"></script>
-<script type="text/javascript" src="js/angular-ui-router.min.js">
-	
-</script>
- <script type="text/javascript">
+<my-directive></my-directive>    
+	</body>
+	<script type="text/javascript" src="js/angular.min.js"></script>
+	<script type="text/javascript" src="js/angular-ui-router.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+	<script type="text/javascript">
+		var app = angular.module("app", ["ui.router"]);
+
+		app.controller("controller", function($scope, $http) {
+			function http() {
+				return $http({
+					url: "/load",
+					method: "GET"
+				}).success(function(result) {
+
+					$scope.data = result.data;
+
+				});
+			}
+
+			http();
+            
+			$scope.rander = function(ind) {
+				
+				$scope.content = $scope.data[ind].content;
+				$scope.sum=++$scope.data[ind].num;
+				$scope.txt=$scope.data[ind].title;
+			    $.ajax({
+						"url": "/set",
+						"type": "post",
+						"data": {
+							"txt": $scope.txt,
+							"sum": $scope.sum
+
+						},
+						"success": function(data) {
+						
+						}
+					})
  
- 	var app=angular.module("app",["ui.router"]);
- 	
- 
- 	app.controller("controller",function($scope,$http){
- 		
- 		 $http({
- 		 	  url:"/load",
- 		 	  method:"GET"
- 		 }).success(function(result){
- 		 	
- 		 	$scope.data=result.data;
- 		 	console.log($scope.data)
- 		 	
- 		 });
- 		 $scope.rander=function(ind){
- 		 	
- 		 	$scope.content=$scope.data[ind].content;
- 		 	
- 		 }
- 		
- 		
- 	})
- 	app.config(function($stateProvider){
- 		    $stateProvider
- 		    .state("info",{
- 		    	url:"/info",
- 		    	templateUrl:"views/info.html"
- 		    })
- 	})
- </script>
+			};
+            $scope.num=0;
+			$scope.add = function() {
+                
+				if($scope.title != "" && $scope.text != "") {
+
+					$.ajax({
+						"url": "/add",
+						"type": "post",
+						"data": {
+							"title": $scope.title,
+							"text": $scope.text,
+							"num":  $scope.num
+
+						},
+						"success": function(data) {
+							http();
+							$scope.title = "";
+							$scope.text = "";
+						}
+					})
+
+				}
+
+			};
+			$scope.path = location.pathname;
+			if(localStorage[$scope.path]) {
+				localStorage[$scope.path] = parseInt(localStorage[$scope.path]) + 1
+			} else {
+				localStorage[$scope.path] = 1;
+			}
+			$scope.count = localStorage[$scope.path];
+
+		});
+		app.config(function($stateProvider, $urlRouterProvider) {
+			$urlRouterProvider.otherwise("list");
+			$stateProvider
+				.state("list", {
+					url: "/list",
+					
+					templateUrl: "views/list.html"
+				})
+				.state("info", {
+					url: "/info",
+					templateUrl: "views/info.html"
+				})
+		});
+		app.directive("myDirective", function() {
+			return {
+				templateUrl: "views/add.html"
+
+			}
+		});
+	</script>
+
 </html>
